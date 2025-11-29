@@ -14,7 +14,6 @@ export default function HomePage() {
   const [applicantId, setApplicantId] = useState<number | null>(null);
 
   useEffect(() => {
-    // Check if user is logged in by checking localStorage
     const checkAuth = async () => {
       try {
         const storedUser = localStorage.getItem("user");
@@ -30,7 +29,6 @@ export default function HomePage() {
         if (storedApplicantId) {
           setApplicantId(parseInt(storedApplicantId, 10));
         } else if (user && user.role === "USER") {
-          // try to fetch applicant for this user (by user id or email)
           try {
             const res = await fetch("/api/apply");
             if (res.ok) {
@@ -45,7 +43,6 @@ export default function HomePage() {
               }
             }
           } catch (err) {
-            // ignore fetch errors
             console.error("Error fetching applicant for user:", err);
           }
         }
@@ -56,8 +53,7 @@ export default function HomePage() {
     checkAuth();
   }, []);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit() {
     let url = mode === "login" ? "/api/auth/login" : "/api/auth/register";
 
     const res = await fetch(url, {
@@ -74,26 +70,25 @@ export default function HomePage() {
     const data = await res.json();
 
     if (data.success) {
-      // Store user info in localStorage - prefer server-returned user object when available
       const userData = data.user
         ? data.user
         : { name: form.name, email: form.email, role: mode === "register-admin" ? "ADMIN" : "USER" };
 
       localStorage.setItem("user", JSON.stringify(userData));
 
-      // Update state
       setIsLoggedIn(true);
       setUserName(userData.name);
       setUserRole(userData.role);
       setShowLogin(false);
       setForm({ name: "", email: "", password: "" });
 
-      alert("Berhasil!");
+      // Show success popup
+      setPopup("LOGIN_SUCCESS");
 
-      // Redirect based on role
+      // Redirect based on role after animation
       setTimeout(() => {
         window.location.href = userData.role === "ADMIN" ? "/admin" : "/";
-      }, 500);
+      }, 2000);
     } else {
       setPopup(data.message);
     }
@@ -112,52 +107,48 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
       <style>{`
         @keyframes slideInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(-30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         @keyframes pulse {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
         }
-        .animate-slide-down {
-          animation: slideInDown 0.8s ease-out;
+        @keyframes fadeScaleIn {
+          0% { opacity: 0; transform: scale(0.8); }
+          100% { opacity: 1; transform: scale(1); }
         }
-        .animate-slide-up {
-          animation: slideInUp 0.8s ease-out;
+        @keyframes fadeScaleOut {
+          0% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(0.8); }
         }
-        .animate-fade-in {
-          animation: fadeIn 1s ease-out;
+
+        .animate-slide-down { animation: slideInDown 0.8s ease-out; }
+        .animate-slide-up { animation: slideInUp 0.8s ease-out; }
+        .animate-fade-in { animation: fadeIn 1s ease-out; }
+        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-fade-scale-in {
+          animation: fadeScaleIn 0.4s ease-out forwards;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        .animate-pulse-custom {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .animate-fade-scale-out {
+          animation: fadeScaleOut 0.3s ease-in forwards;
+        }
+        .popup-success {
+          border-top: 4px solid #16a34a;
+          box-shadow: 0 10px 30px rgba(22, 163, 74, 0.3);
+        }
+        .popup-error {
+          border-top: 4px solid #dc2626;
+          box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
         }
       `}</style>
 
@@ -172,9 +163,9 @@ export default function HomePage() {
         <div className="flex items-center gap-4">
           {isLoggedIn && userName ? (
             <div className="flex items-center gap-4">
-              {userRole === "USER" && applicantId && (
+              {userRole === "USER" && applicantId ? (
                 <NotificationsWidget applicantId={applicantId} />
-              )}
+              ) : null}
               <div className="flex items-center gap-2">
                 <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-green-800 rounded-full flex items-center justify-center text-white font-bold">
                   {userName.charAt(0).toUpperCase()}
@@ -207,7 +198,6 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-blue-100/50 to-transparent opacity-50 blur-3xl"></div>
         <div className="relative max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
             <div className="animate-slide-down space-y-6">
               <h1 className="text-5xl md:text-6xl font-bold text-blue-900 leading-tight">
                 Portal <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Magang</span> Radar Cirebon
@@ -231,32 +221,23 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Visual */}
             <div className="animate-slide-up relative h-80 md:h-96">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-3xl opacity-20 blur-3xl"></div>
               <div className="relative bg-white rounded-3xl shadow-2xl p-8 space-y-4 transform hover:scale-105 transition duration-300">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">
-                    ✓
-                  </div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">✓</div>
                   <p className="text-gray-800 font-semibold">Pendaftaran Mudah</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-bold">
-                    ✓
-                  </div>
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-bold">✓</div>
                   <p className="text-gray-800 font-semibold">Tracking Status Real-time</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 font-bold">
-                    ✓
-                  </div>
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 font-bold">✓</div>
                   <p className="text-gray-800 font-semibold">Upload Dokumen PDF</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 font-bold">
-                    ✓
-                  </div>
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 font-bold">✓</div>
                   <p className="text-gray-800 font-semibold">Pemberitahuan Otomatis</p>
                 </div>
               </div>
@@ -273,26 +254,11 @@ export default function HomePage() {
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              {
-                icon: "🎯",
-                title: "Program Terarah",
-                desc: "Program magang yang terstruktur dengan mentoring dari profesional berpengalaman",
-              },
-              {
-                icon: "💼",
-                title: "Pengalaman Kerja",
-                desc: "Dapatkan pengalaman kerja nyata di industri media dan telekomunikasi terkemuka",
-              },
-              {
-                icon: "🚀",
-                title: "Berkembang Bersama",
-                desc: "Kesempatan untuk berkembang dan membangun jaringan profesional di industri",
-              },
+              { icon: "🎯", title: "Program Terarah", desc: "Program magang yang terstruktur dengan mentoring dari profesional berpengalaman" },
+              { icon: "💼", title: "Pengalaman Kerja", desc: "Dapatkan pengalaman kerja nyata di industri media dan telekomunikasi terkemuka" },
+              { icon: "🚀", title: "Berkembang Bersama", desc: "Kesempatan untuk berkembang dan membangun jaringan profesional di industri" },
             ].map((feature, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 transition transform duration-300 animate-fade-in"
-              >
+              <div key={idx} className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 transition transform duration-300 animate-fade-in">
                 <div className="text-4xl mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-bold text-blue-900 mb-3">{feature.title}</h3>
                 <p className="text-gray-700">{feature.desc}</p>
@@ -307,10 +273,8 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           {isLoggedIn && userRole === "USER" ? (
             <div className="space-y-8">
-              {/* Welcome Message */}
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl p-6 shadow-xl animate-slide-down">
                 <div className="flex items-center gap-6">
-                  {/* Notifications on the left of the welcome UI */}
                   <div className="flex-shrink-0">
                     {userRole === "USER" && applicantId ? (
                       <div className="p-1 rounded bg-white/10">
@@ -322,15 +286,12 @@ export default function HomePage() {
                       </div>
                     )}
                   </div>
-
                   <div>
                     <h2 className="text-4xl font-bold mb-2">Selamat Datang, {userName}! 👋</h2>
                     <p className="text-lg text-blue-100">Silakan lengkapi formulir di bawah untuk mendaftar sebagai peserta magang</p>
                   </div>
                 </div>
               </div>
-
-              {/* Application Form */}
               <ApplicationForm onApplySuccess={setApplicantId} />
             </div>
           ) : isLoggedIn && userRole === "ADMIN" ? (
@@ -402,7 +363,7 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Login/Register Modal */}
+      {/* Login Modal */}
       {showLogin && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-slide-up max-h-[90vh] overflow-y-auto">
@@ -414,11 +375,7 @@ export default function HomePage() {
             </button>
 
             <h2 className="text-2xl font-bold mb-6 text-center text-blue-900">
-              {mode === "login"
-                ? "Login"
-                : mode === "register-user"
-                ? "Daftar sebagai Peserta"
-                : "Daftar sebagai Admin"}
+              {mode === "login" ? "Login" : mode === "register-user" ? "Daftar sebagai Peserta" : "Daftar sebagai Admin"}
             </h2>
 
             {mode !== "login" && (
@@ -429,9 +386,7 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setMode("register-user")}
                     className={`py-2 px-3 rounded-lg font-semibold transition ${
-                      mode === "register-user"
-                        ? "bg-blue-600 text-white shadow-lg"
-                        : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
+                      mode === "register-user" ? "bg-blue-600 text-white shadow-lg" : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
                     }`}
                   >
                     👤 Peserta
@@ -440,9 +395,7 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setMode("register-admin")}
                     className={`py-2 px-3 rounded-lg font-semibold transition ${
-                      mode === "register-admin"
-                        ? "bg-red-600 text-white shadow-lg"
-                        : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500"
+                      mode === "register-admin" ? "bg-red-600 text-white shadow-lg" : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500"
                     }`}
                   >
                     🔑 Admin
@@ -451,7 +404,7 @@ export default function HomePage() {
               </div>
             )}
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-4">
               {(mode === "register-user" || mode === "register-admin") && (
                 <input
                   type="text"
@@ -460,6 +413,11 @@ export default function HomePage() {
                   className="w-full border border-gray-300 p-3 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSubmit();
+                    }
+                  }}
                 />
               )}
               <input
@@ -469,6 +427,11 @@ export default function HomePage() {
                 className="w-full border border-gray-300 p-3 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSubmit();
+                  }
+                }}
               />
               <input
                 type="password"
@@ -477,33 +440,33 @@ export default function HomePage() {
                 className="w-full border border-gray-300 p-3 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSubmit();
+                  }
+                }}
               />
               <button
-                type="submit"
+                type="button"
+                onClick={() => handleSubmit()}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:shadow-lg transition font-semibold"
               >
                 {mode === "login" ? "Login" : "Daftar"}
               </button>
-            </form>
+            </div>
 
             <p className="mt-6 text-center text-gray-600 text-sm">
               {mode === "login" ? (
                 <>
                   Belum punya akun?{" "}
-                  <button
-                    className="text-blue-600 font-bold hover:underline"
-                    onClick={() => setMode("register-user")}
-                  >
+                  <button className="text-blue-600 font-bold hover:underline" onClick={() => setMode("register-user")}>
                     Daftar
                   </button>
                 </>
               ) : (
                 <>
                   Sudah punya akun?{" "}
-                  <button
-                    className="text-blue-600 font-bold hover:underline"
-                    onClick={() => setMode("login")}
-                  >
+                  <button className="text-blue-600 font-bold hover:underline" onClick={() => setMode("login")}>
                     Login
                   </button>
                 </>
@@ -513,10 +476,10 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Popup */}
-      {popup && (
+      {/* Error Popup */}
+      {popup && popup !== "LOGIN_SUCCESS" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center animate-slide-up border-t-4 border-red-500">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center animate-slide-up popup-error">
             <div className="mb-4">
               <div className="text-5xl mb-3">⚠️</div>
               <h3 className="text-xl font-bold text-red-600 mb-2">Pendaftaran Gagal</h3>
@@ -538,6 +501,31 @@ export default function HomePage() {
               >
                 Kembali ke Login
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Popup */}
+      {popup === "LOGIN_SUCCESS" && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full text-center animate-fade-scale-in popup-success">
+            <div className="mb-6">
+              <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center mb-4 animate-pulse-custom">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-3xl font-bold text-green-600 mb-3">Login Berhasil!</h3>
+            </div>
+            <p className="text-gray-700 text-lg mb-6">
+              Selamat datang kembali, <span className="font-bold text-blue-600">{userName}</span>
+            </p>
+            <div className="flex items-center justify-center gap-2 text-gray-500">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <span className="ml-2 text-sm">Mengalihkan...</span>
             </div>
           </div>
         </div>

@@ -8,6 +8,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [selectedApplicant, setSelectedApplicant] = useState<any | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [notifMessage, setNotifMessage] = useState("");
+  const [sendingNotif, setSendingNotif] = useState(false);
   const [adminName, setAdminName] = useState<string | null>(null);
 
   async function getApplicants() {
@@ -43,18 +45,63 @@ export default function AdminPage() {
     }
   }
 
+  async function sendNotification() {
+    if (!selectedApplicant) return;
+    if (!notifMessage.trim()) {
+      alert("Isi pesan notifikasi terlebih dahulu");
+      return;
+    }
+
+    try {
+      setSendingNotif(true);
+      const res = await fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicantId: selectedApplicant.id, message: notifMessage }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Notifikasi terkirim ke peserta");
+        setNotifMessage("");
+      } else {
+        alert("Gagal mengirim notifikasi: " + (data.message || ""));
+      }
+    } catch (err) {
+      console.error("Error sending notification:", err);
+      alert("Terjadi kesalahan saat mengirim notifikasi");
+    } finally {
+      setSendingNotif(false);
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem("user");
     window.location.href = "/";
   }
 
   useEffect(() => {
-    // Get admin name from localStorage
+    // Protect admin page: only allow users with role === "ADMIN"
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      setAdminName(user.name);
+    if (!storedUser) {
+      // not logged in — redirect to home
+      window.location.href = "/";
+      return;
     }
+
+    try {
+      const user = JSON.parse(storedUser);
+      if (user.role !== "ADMIN") {
+        alert("Akses ditolak. Halaman ini hanya untuk admin.");
+        window.location.href = "/";
+        return;
+      }
+      setAdminName(user.name);
+    } catch (err) {
+      // if parsing fails, redirect
+      window.location.href = "/";
+      return;
+    }
+
     getApplicants();
   }, []);
 
@@ -337,6 +384,34 @@ export default function AdminPage() {
                   Aplikasi ini sudah {selectedApplicant.status === "ACCEPTED" ? "diterima" : "ditolak"}
                 </div>
               )}
+
+              {/* Admin send-notification box */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <p className="text-sm text-gray-600 font-semibold mb-3">Kirim Notifikasi ke Peserta</p>
+                <textarea
+                  value={notifMessage}
+                  onChange={(e) => setNotifMessage(e.target.value)}
+                  rows={4}
+                  placeholder="Tulis pesan notifikasi untuk peserta..."
+                  className="w-full border border-gray-200 p-3 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-blue-400 mb-3"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={sendNotification}
+                    disabled={sendingNotif}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-60"
+                  >
+                    {sendingNotif ? "Mengirim..." : "Kirim Notifikasi"}
+                  </button>
+                  <button
+                    onClick={() => setNotifMessage("")}
+                    disabled={sendingNotif}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition disabled:opacity-60"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

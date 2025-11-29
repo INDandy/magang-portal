@@ -8,7 +8,7 @@ interface Notification {
   applicantId: number;
 }
 
-export default function NotificationsWidget({ applicantId }: { applicantId: number }) {
+export default function NotificationsWidget({ applicantId }: { applicantId?: number | null }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,23 @@ export default function NotificationsWidget({ applicantId }: { applicantId: numb
   async function fetchNotifications() {
     try {
       setLoading(true);
-      const res = await fetch(`/api/notifications?applicantId=${applicantId}`);
+      // allow the component to work if applicantId wasn't passed as prop
+      const id =
+        typeof applicantId === "number"
+          ? applicantId
+          : typeof window !== "undefined"
+          ? parseInt(localStorage.getItem("applicantId") || "0", 10)
+          : 0;
+
+      if (!id || isNaN(id)) {
+        // nothing to fetch yet
+        setNotifications([]);
+        prevCountRef.current = 0;
+        initialLoadRef.current = false;
+        return;
+      }
+
+      const res = await fetch(`/api/notifications?applicantId=${encodeURIComponent(String(id))}`);
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
 
