@@ -1,0 +1,346 @@
+"use client";
+import { useEffect, useState } from "react";
+import AdminNotificationsWidget from "@/app/components/AdminNotificationsWidget";
+
+export default function AdminPage() {
+  const [applicants, setApplicants] = useState<any[]>([]);
+  const [filter, setFilter] = useState<"ALL" | "PENDING" | "ACCEPTED" | "REJECTED">("ALL");
+  const [loading, setLoading] = useState(true);
+  const [selectedApplicant, setSelectedApplicant] = useState<any | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const [adminName, setAdminName] = useState<string | null>(null);
+
+  async function getApplicants() {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/apply");
+      const data = await res.json();
+      setApplicants(data);
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function updateStatus(id: number, status: string) {
+    try {
+      setUpdating(true);
+      const res = await fetch("/api/update-status", {
+        method: "POST",
+        body: JSON.stringify({ id, status }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.success) {
+        getApplicants();
+        setSelectedApplicant(null);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  }
+
+  useEffect(() => {
+    // Get admin name from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setAdminName(user.name);
+    }
+    getApplicants();
+  }, []);
+
+  const filteredApplicants = applicants.filter((a) => {
+    if (filter === "ALL") return true;
+    return a.status === filter;
+  });
+
+  const stats = {
+    total: applicants.length,
+    pending: applicants.filter((a) => a.status === "PENDING").length,
+    accepted: applicants.filter((a) => a.status === "ACCEPTED").length,
+    rejected: applicants.filter((a) => a.status === "REJECTED").length,
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "ACCEPTED":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "REJECTED":
+        return "bg-red-100 text-red-800 border-red-300";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-300";
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Navbar */}
+      <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40 p-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+              MC
+            </div>
+            <h3 className="font-bold text-blue-900 text-lg">Admin Dashboard</h3>
+          </div>
+          <div className="flex items-center gap-4">
+            <AdminNotificationsWidget />
+            {adminName && (
+              <div className="flex items-center gap-3 border-l border-gray-300 pl-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center text-white font-bold">
+                    {adminName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Admin</p>
+                    <p className="font-bold text-blue-900 text-sm">{adminName}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition text-sm"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-blue-900">Admin Dashboard</h1>
+          <button
+            onClick={getApplicants}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            🔄 Refresh
+          </button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-600">
+            <p className="text-gray-600 text-sm font-semibold">Total Aplikasi</p>
+            <p className="text-3xl font-bold text-blue-600 mt-2">{stats.total}</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
+            <p className="text-gray-600 text-sm font-semibold">Pending Review</p>
+            <p className="text-3xl font-bold text-yellow-600 mt-2">{stats.pending}</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
+            <p className="text-gray-600 text-sm font-semibold">Diterima</p>
+            <p className="text-3xl font-bold text-green-600 mt-2">{stats.accepted}</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+            <p className="text-gray-600 text-sm font-semibold">Ditolak</p>
+            <p className="text-3xl font-bold text-red-600 mt-2">{stats.rejected}</p>
+          </div>
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex gap-3 mb-8 flex-wrap">
+          {["ALL", "PENDING", "ACCEPTED", "REJECTED"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f as any)}
+              className={`px-6 py-2 rounded-lg font-semibold transition ${
+                filter === f
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border-2 border-gray-200 hover:border-blue-400"
+              }`}
+            >
+              {f === "ALL" && "Semua"}
+              {f === "PENDING" && "Pending"}
+              {f === "ACCEPTED" && "Diterima"}
+              {f === "REJECTED" && "Ditolak"}
+            </button>
+          ))}
+        </div>
+
+        {/* Applicants List */}
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">Loading...</p>
+          </div>
+        ) : filteredApplicants.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+            <p className="text-gray-600 text-lg">Tidak ada aplikasi untuk ditampilkan</p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredApplicants.map((a) => (
+              <div
+                key={a.id}
+                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer border-l-4 border-blue-600"
+                onClick={() => setSelectedApplicant(a)}
+              >
+                <div className="grid md:grid-cols-4 gap-4 items-center">
+                  <div>
+                    <p className="text-sm text-gray-500">Nama</p>
+                    <p className="font-bold text-blue-900">{a.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="font-semibold text-gray-700">{a.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Telepon</p>
+                    <p className="font-semibold text-gray-700">{a.phone}</p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500">Status</p>
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(
+                          a.status
+                        )}`}
+                      >
+                        {a.status}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-lg">→</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        </div>
+        </div>
+
+      {/* Detail Modal */}
+      {selectedApplicant && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Detail Aplikasi</h2>
+              <button
+                onClick={() => setSelectedApplicant(null)}
+                className="text-2xl hover:opacity-80 transition"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-8 space-y-6">
+              {/* Applicant Info */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-gray-600 text-sm font-semibold mb-1">Nama Lengkap</p>
+                  <p className="text-lg font-bold text-blue-900">{selectedApplicant.name}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm font-semibold mb-1">Email</p>
+                  <p className="text-lg font-bold text-blue-900">{selectedApplicant.email}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm font-semibold mb-1">Nomor Telepon</p>
+                  <p className="text-lg font-bold text-blue-900">{selectedApplicant.phone}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm font-semibold mb-1">Status Saat Ini</p>
+                  <span
+                    className={`inline-block px-4 py-1 rounded-full text-sm font-bold border ${getStatusColor(
+                      selectedApplicant.status
+                    )}`}
+                  >
+                    {selectedApplicant.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tanggal Submit */}
+              <div>
+                <p className="text-gray-600 text-sm font-semibold mb-1">Tanggal Mendaftar</p>
+                <p className="text-gray-700">
+                  {new Date(selectedApplicant.createdAt).toLocaleDateString("id-ID", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+
+              {/* Document Preview */}
+              <div>
+                <p className="text-gray-600 text-sm font-semibold mb-3">File CV/Resume</p>
+                <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="text-3xl">📄</div>
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {selectedApplicant.fileUrl.split("/").pop()}
+                      </p>
+                      <p className="text-sm text-gray-600">PDF Document</p>
+                    </div>
+                  </div>
+                  <a
+                    href={selectedApplicant.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                  >
+                    Lihat
+                  </a>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              {selectedApplicant.status === "PENDING" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <p className="text-sm text-gray-600 font-semibold mb-4">Ambil Keputusan:</p>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => updateStatus(selectedApplicant.id, "ACCEPTED")}
+                      disabled={updating}
+                      className="flex-1 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:shadow-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {updating ? "Loading..." : "✓ Terima Aplikasi"}
+                    </button>
+                    <button
+                      onClick={() => updateStatus(selectedApplicant.id, "REJECTED")}
+                      disabled={updating}
+                      className="flex-1 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:shadow-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {updating ? "Loading..." : "✗ Tolak Aplikasi"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {selectedApplicant.status !== "PENDING" && (
+                <div
+                  className={`p-6 rounded-lg text-center font-bold ${
+                    selectedApplicant.status === "ACCEPTED"
+                      ? "bg-green-100 text-green-700 border border-green-300"
+                      : "bg-red-100 text-red-700 border border-red-300"
+                  }`}
+                >
+                  Aplikasi ini sudah {selectedApplicant.status === "ACCEPTED" ? "diterima" : "ditolak"}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applicants Applicant[] // <-- ini relation balik
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Applicant {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  email     String
+  phone     String
+  fileUrl   String
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id])
+  notifications Notification[]
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  message     String
+  applicantId Int
+  createdAt   DateTime @default(now())
+
+  applicant Applicant @relation(fields: [applicantId], references: [id])
+}
+
+enum Status {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
