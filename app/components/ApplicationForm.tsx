@@ -207,7 +207,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
           <li>File harus berformat PDF dengan ukuran maksimal 5MB</li>
           <li>Pastikan semua data yang Anda isi sudah benar</li>
           <li>Admin akan meninjau aplikasi Anda dalam waktu 3-7 hari kerja</li>
-          <li>Anda akan menerima notifikasi melalui email tentang status aplikasi</li>
+          <li>Anda akan menerima notifikasi melalui notifikasi yang ada di website ini</li>
         </ul>
       </div>
     </div>

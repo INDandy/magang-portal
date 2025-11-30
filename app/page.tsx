@@ -8,6 +8,7 @@ export default function HomePage() {
   const [mode, setMode] = useState<"login" | "register-user" | "register-admin">("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [popup, setPopup] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -153,45 +154,104 @@ export default function HomePage() {
       `}</style>
 
       {/* Navbar */}
-      <nav className="flex justify-between items-center p-6 shadow-sm bg-white/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-            MC
-          </div>
-          <h3 className="font-bold text-blue-900 text-lg">Magang Portal</h3>
-        </div>
+<nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md shadow-sm">
+  <div className="flex justify-between items-center p-6">
+    
+    {/* Logo + Title */}
+    <div className="flex items-center gap-2">
+      <img src="/icon.svg" alt="Logo" className="w-10 h-10 object-contain" />
+      <h3 className="font-bold text-blue-900 text-lg">
+        Magang Portal Radar Cirebon
+      </h3>
+    </div>
+
+    {/* Desktop Menu */}
+    <div className="hidden md:flex items-center gap-4">
+      {isLoggedIn && userName ? (
         <div className="flex items-center gap-4">
-          {isLoggedIn && userName ? (
-            <div className="flex items-center gap-4">
-              {userRole === "USER" && applicantId ? (
-                <NotificationsWidget applicantId={applicantId} />
-              ) : null}
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-green-800 rounded-full flex items-center justify-center text-white font-bold">
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Welcome</p>
-                  <p className="font-bold text-blue-900">Hello, {userName}</p>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition"
-              >
-                Logout
-              </button>
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-green-800 rounded-full flex items-center justify-center text-white font-bold">
+              {userName.charAt(0).toUpperCase()}
             </div>
-          ) : (
-            <button
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition transform"
-              onClick={() => setShowLogin(true)}
-            >
-              Login
-            </button>
-          )}
+            <div>
+              <p className="text-sm text-gray-600">Welcome</p>
+              <p className="font-bold text-blue-900">{userName}</p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+          >
+            Logout
+          </button>
         </div>
-      </nav>
+      ) : (
+        <button
+          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition"
+          onClick={() => setShowLogin(true)}
+        >
+          Login
+        </button>
+      )}
+    </div>
+
+    {/* Mobile Hamburger */}
+    <button
+      className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+      onClick={() => setOpen(!open)}
+    >
+      <svg
+        className="w-7 h-7 text-blue-900"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+
+  {/* Mobile Dropdown */}
+    {open && (
+      <div className="md:hidden px-6 pb-4 flex flex-col gap-4 animate-fade-in">
+        {isLoggedIn && userName ? (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-green-800 rounded-full flex items-center justify-center text-white font-bold">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Welcome</p>
+                <p className="font-bold text-blue-900">{userName}</p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <button
+            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition"
+            onClick={() => setShowLogin(true)}
+          >
+            Login
+          </button>
+        )}
+      </div>
+    )}
+  </nav>
+
+    <div className="w-full px-6 mt-2 flex justify-end" >
+       {userRole === "USER" && applicantId ? (
+              <NotificationsWidget applicantId={applicantId} />
+            ) : null}
+    </div>
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
@@ -348,13 +408,14 @@ export default function HomePage() {
             </div>
             <div>
               <h4 className="text-lg font-bold mb-4">Kontak</h4>
-              <p className="text-blue-200">Email: magang@radarcirebon.com</p>
-              <p className="text-blue-200">Phone: +62-XXX-XXXX-XXXX</p>
+              <p className="text-blue-200">Email: radarcireboncom@gmail.com</p>
+              <p className="text-blue-200">Phone: (0231) 483531/483533</p>
             </div>
             <div>
               <h4 className="text-lg font-bold mb-4">Jam Kerja</h4>
-              <p className="text-blue-200">Senin - Jumat: 08:00 - 17:00</p>
-              <p className="text-blue-200">Sabtu - Minggu: Tutup</p>
+              <p className="text-blue-200">Senin - Jumat: 08:00 - 16:00</p>
+              <p className="text-blue-200">Sabtu: 08.00 - 14.00</p>
+              <p className="text-blue-200">Minggu: Tutup</p>
             </div>
           </div>
           <div className="border-t border-blue-800 pt-8 text-center text-blue-200">
