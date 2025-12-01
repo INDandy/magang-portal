@@ -393,24 +393,22 @@ export default function AdminPage() {
               {/* Document Preview */}
               <div>
                 <p className="text-gray-600 text-sm font-semibold mb-3">File CV/Resume</p>
-                <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl">📄</div>
-                    <div>
-                      <p className="font-semibold text-gray-800">
-                        {selectedApplicant.fileUrl.split("/").pop()}
-                      </p>
-                      <p className="text-sm text-gray-600">PDF Document</p>
-                    </div>
+                <div className="bg-gray-100 rounded-lg p-4 flex gap-4">
+                  <div className="text-3xl">📄</div>
+                  <div className="flex-1 flex flex-col">
+                    <p className="font-semibold text-gray-800">
+                      {selectedApplicant.fileUrl.split("/").pop()}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-3">PDF Document</p>
+                    <a
+                      href={selectedApplicant.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="self-start px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                    >
+                      Lihat
+                    </a>
                   </div>
-                  <a
-                    href={selectedApplicant.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
-                  >
-                    Lihat
-                  </a>
                 </div>
               </div>
 

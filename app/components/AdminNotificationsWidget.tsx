@@ -53,28 +53,28 @@ export default function AdminNotificationsWidget() {
       </button>
 
       {showNotifications && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
+        <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-2xl border border-gray-200 z-30 max-h-[70vh] overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="font-bold text-gray-800">📋 Aplikasi Baru Pending</h3>
             <p className="text-sm text-gray-600">{pendingCount} aplikasi menunggu review</p>
           </div>
 
-          <div className="max-h-96 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-gray-600">Loading...</div>
+              <div className="p-4 text-center text-gray-600 text-sm">Loading...</div>
             ) : notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-600">
+              <div className="p-6 text-center text-gray-600">
                 <p className="text-lg mb-2">✅</p>
-                <p>Semua aplikasi sudah direview</p>
+                <p className="text-sm">Semua aplikasi sudah direview</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
                 {notifications.map((notif) => (
-                  <div key={notif.id} className="p-4 hover:bg-orange-50 transition">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-800">{notif.name}</p>
-                        <p className="text-sm text-gray-600 break-all">{notif.email}</p>
+                  <div key={notif.id} className="p-3 sm:p-4 hover:bg-orange-50 transition">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 text-xs sm:text-sm">{notif.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 break-words">{notif.email}</p>
                         <p className="text-xs text-gray-500 mt-1">
                           📅 {new Date(notif.createdAt).toLocaleDateString("id-ID", {
                             year: "numeric",
@@ -85,7 +85,7 @@ export default function AdminNotificationsWidget() {
                           })}
                         </p>
                       </div>
-                      <span className="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded">
+                      <span className="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded whitespace-nowrap">
                         {notif.status}
                       </span>
                     </div>
