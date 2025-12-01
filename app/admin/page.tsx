@@ -106,6 +106,16 @@ export default function AdminPage() {
     getApplicants();
   }, []);
 
+  const handleClick = async () => {
+    setLoading(true);
+
+    await getApplicants();
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  };
+
   const filteredApplicants = applicants.filter((a) => {
     if (filter === "ALL") return true;
     return a.status === filter;
@@ -235,13 +245,17 @@ export default function AdminPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-blue-900">Admin Dashboard</h1>
           <button
-            onClick={getApplicants}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            onClick={handleClick}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 group"
           >
-            🔄 Refresh
+           <img src="/icons/refresh.png" 
+                alt="Refresh" 
+                className={`w-5 h-5 ${loading ? "spin-fast" : ""}`} />
+           Refresh
           </button>
         </div>
 
+  
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-600">

@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes spin-custom {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .spin-slow {
+          animation: spin-custom 3s linear infinite;
+        }
+
+        .spin-fast {
+          animation: spin-custom 1s linear infinite;
+        }
