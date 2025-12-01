@@ -366,17 +366,6 @@ export default function HomePage() {
             <div className="space-y-8">
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl p-6 shadow-xl animate-slide-down">
                 <div className="flex items-center gap-6">
-                  <div className="flex-shrink-0">
-                    {userRole === "USER" && applicantId ? (
-                      <div className="p-1 rounded bg-white/10">
-                        <NotificationsWidget applicantId={applicantId} />
-                      </div>
-                    ) : (
-                      <div className="p-1 rounded bg-white/10">
-                        <span className="text-3xl">🔔</span>
-                      </div>
-                    )}
-                  </div>
                   <div>
                     <h2 className="text-4xl font-bold mb-2">Selamat Datang, {userName}! 👋</h2>
                     <p className="text-lg text-blue-100">Silakan lengkapi formulir di bawah untuk mendaftar sebagai peserta magang</p>
