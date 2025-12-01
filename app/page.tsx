@@ -131,6 +131,22 @@ export default function HomePage() {
           0% { opacity: 1; transform: scale(1); }
           100% { opacity: 0; transform: scale(0.8); }
         }
+        @keyframes modalBackdropFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes modalContentSlideUp {
+          0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes inputFocus {
+          from { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+          to { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        }
+        @keyframes buttonHoverGlow {
+          0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+          100% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+        }
 
         .animate-slide-down { animation: slideInDown 0.8s ease-out; }
         .animate-slide-up { animation: slideInUp 0.8s ease-out; }
@@ -143,13 +159,28 @@ export default function HomePage() {
         .animate-fade-scale-out {
           animation: fadeScaleOut 0.3s ease-in forwards;
         }
+        .modal-backdrop {
+          animation: modalBackdropFadeIn 0.3s ease-out forwards;
+        }
+        .modal-content {
+          animation: modalContentSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .modal-input:focus {
+          animation: inputFocus 0.3s ease-out forwards;
+        }
+        .modal-button:hover {
+          animation: buttonHoverGlow 0.6s ease-out forwards;
+        }
         .popup-success {
           border-top: 4px solid #16a34a;
-          box-shadow: 0 10px 30px rgba(22, 163, 74, 0.3);
+          box-shadow: 0 20px 40px rgba(22, 163, 74, 0.3);
         }
         .popup-error {
           border-top: 4px solid #dc2626;
-          box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+          box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3);
+        }
+        @media (max-width: 640px) {
+          .modal-content { max-height: 90vh; }
         }
       `}</style>
 
@@ -426,135 +457,157 @@ export default function HomePage() {
 
       {/* Login Modal */}
       {showLogin && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-slide-up max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 modal-backdrop flex items-center justify-center z-50 p-4 sm:p-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md modal-content relative max-h-[90vh] overflow-y-auto">
+            {/* Close Button */}
             <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-2xl transition"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition duration-200"
               onClick={() => setShowLogin(false)}
+              aria-label="Close modal"
             >
-              ×
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
 
-            <h2 className="text-2xl font-bold mb-6 text-center text-blue-900">
-              {mode === "login" ? "Login" : mode === "register-user" ? "Daftar sebagai Peserta" : "Daftar sebagai Admin"}
-            </h2>
-
-            {mode !== "login" && (
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-gray-700 font-semibold mb-3">Pilih Tipe Akun:</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setMode("register-user")}
-                    className={`py-2 px-3 rounded-lg font-semibold transition ${
-                      mode === "register-user" ? "bg-blue-600 text-white shadow-lg" : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
-                    }`}
-                  >
-                    👤 Peserta
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode("register-admin")}
-                    className={`py-2 px-3 rounded-lg font-semibold transition ${
-                      mode === "register-admin" ? "bg-red-600 text-white shadow-lg" : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500"
-                    }`}
-                  >
-                    🔑 Admin
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              {(mode === "register-user" || mode === "register-admin") && (
-                <input
-                  type="text"
-                  placeholder="Nama Lengkap"
-                  required
-                  className="w-full border border-gray-300 p-3 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSubmit();
-                    }
-                  }}
-                />
-              )}
-              <input
-                type="email"
-                placeholder="Email"
-                required
-                className="w-full border border-gray-300 p-3 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSubmit();
-                  }
-                }}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                required
-                className="w-full border border-gray-300 p-3 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSubmit();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => handleSubmit()}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:shadow-lg transition font-semibold"
-              >
-                {mode === "login" ? "Login" : "Daftar"}
-              </button>
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-50 to-transparent p-6 sm:p-8 border-b border-gray-100">
+              <h2 className="text-2xl sm:text-3xl font-bold text-blue-900 text-center">
+                {mode === "login" ? "🔐 Login" : mode === "register-user" ? "👤 Daftar sebagai Peserta" : "🔑 Daftar sebagai Admin"}
+              </h2>
+              <p className="text-sm text-gray-600 text-center mt-2">
+                {mode === "login" ? "Masuk ke akun Anda" : "Buat akun baru untuk melanjutkan"}
+              </p>
             </div>
 
-            <p className="mt-6 text-center text-gray-600 text-sm">
-              {mode === "login" ? (
-                <>
-                  Belum punya akun?{" "}
-                  <button className="text-blue-600 font-bold hover:underline" onClick={() => setMode("register-user")}>
-                    Daftar
-                  </button>
-                </>
-              ) : (
-                <>
-                  Sudah punya akun?{" "}
-                  <button className="text-blue-600 font-bold hover:underline" onClick={() => setMode("login")}>
-                    Login
-                  </button>
-                </>
+            {/* Content */}
+            <div className="p-6 sm:p-8">
+              {/* Account Type Selection */}
+              {mode !== "login" && (
+                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 transition transform hover:scale-105 duration-200">
+                  <p className="text-xs sm:text-sm text-gray-700 font-semibold mb-3">Pilih Tipe Akun:</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setMode("register-user")}
+                      className={`py-3 px-3 sm:px-4 rounded-lg font-semibold transition duration-200 transform hover:scale-105 ${
+                        mode === "register-user"
+                          ? "bg-blue-600 text-white shadow-lg scale-105"
+                          : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500 hover:shadow-md"
+                      }`}
+                    >
+                      👤 Peserta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMode("register-admin")}
+                      className={`py-3 px-3 sm:px-4 rounded-lg font-semibold transition duration-200 transform hover:scale-105 ${
+                        mode === "register-admin"
+                          ? "bg-red-600 text-white shadow-lg scale-105"
+                          : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:shadow-md"
+                      }`}
+                    >
+                      🔑 Admin
+                    </button>
+                  </div>
+                </div>
               )}
-            </p>
+
+              {/* Form Inputs */}
+              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                {(mode === "register-user" || mode === "register-admin") && (
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Nama Lengkap"
+                      required
+                      className="w-full border-2 border-gray-300 p-3 sm:p-4 rounded-lg text-black text-sm sm:text-base focus:outline-none focus:border-blue-500 modal-input transition duration-200 placeholder-gray-400"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    />
+                    <span className="absolute right-3 top-3 sm:top-4 text-gray-400">👤</span>
+                  </div>
+                )}
+                
+                <div className="relative">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    required
+                    className="w-full border-2 border-gray-300 p-3 sm:p-4 rounded-lg text-black text-sm sm:text-base focus:outline-none focus:border-blue-500 modal-input transition duration-200 placeholder-gray-400"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  />
+                  <span className="absolute right-3 top-3 sm:top-4 text-gray-400">✉️</span>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    required
+                    className="w-full border-2 border-gray-300 p-3 sm:p-4 rounded-lg text-black text-sm sm:text-base focus:outline-none focus:border-blue-500 modal-input transition duration-200 placeholder-gray-400"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  />
+                  <span className="absolute right-3 top-3 sm:top-4 text-gray-400">🔒</span>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 sm:py-4 rounded-lg hover:shadow-lg transition font-semibold text-sm sm:text-base modal-button transform hover:scale-105 duration-200 mt-6"
+                >
+                  {mode === "login" ? "Login Sekarang" : "Daftar Sekarang"}
+                </button>
+              </form>
+
+              {/* Toggle Between Login and Register */}
+              <p className="mt-6 text-center text-gray-600 text-xs sm:text-sm">
+                {mode === "login" ? (
+                  <>
+                    Belum punya akun?{" "}
+                    <button
+                      className="text-blue-600 font-bold hover:underline hover:text-blue-700 transition"
+                      onClick={() => setMode("register-user")}
+                    >
+                      Daftar di sini
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Sudah punya akun?{" "}
+                    <button
+                      className="text-blue-600 font-bold hover:underline hover:text-blue-700 transition"
+                      onClick={() => setMode("login")}
+                    >
+                      Login di sini
+                    </button>
+                  </>
+                )}
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       {/* Error Popup */}
       {popup && popup !== "LOGIN_SUCCESS" && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center animate-slide-up popup-error">
+        <div className="fixed inset-0 bg-black/50 modal-backdrop flex items-center justify-center z-50 p-4 sm:p-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full modal-content text-center popup-error">
             <div className="mb-4">
               <div className="text-5xl mb-3">⚠️</div>
-              <h3 className="text-xl font-bold text-red-600 mb-2">Pendaftaran Gagal</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-red-600 mb-2">Pendaftaran Gagal</h3>
             </div>
-            <p className="text-gray-700 font-semibold text-lg mb-6">{popup}</p>
-            <div className="space-y-3">
+            <p className="text-gray-700 font-semibold text-base sm:text-lg mb-6 px-4">{popup}</p>
+            <div className="space-y-3 p-6">
               <button
-                className="w-full bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition font-semibold"
+                className="w-full bg-blue-600 text-white py-2 sm:py-3 px-6 rounded-lg hover:bg-blue-700 transition font-semibold transform hover:scale-105 duration-200"
                 onClick={() => setPopup(null)}
               >
                 Coba Lagi
               </button>
               <button
-                className="w-full bg-gray-200 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-300 transition font-semibold"
+                className="w-full bg-gray-200 text-gray-700 py-2 sm:py-3 px-6 rounded-lg hover:bg-gray-300 transition font-semibold transform hover:scale-105 duration-200"
                 onClick={() => {
                   setPopup(null);
                   setMode("login");
@@ -569,20 +622,20 @@ export default function HomePage() {
 
       {/* Success Popup */}
       {popup === "LOGIN_SUCCESS" && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full text-center animate-fade-scale-in popup-success">
-            <div className="mb-6">
+        <div className="fixed inset-0 bg-black/60 modal-backdrop flex items-center justify-center z-50 p-4 sm:p-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full modal-content text-center animate-fade-scale-in popup-success">
+            <div className="mb-6 p-6 sm:p-8">
               <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center mb-4 animate-pulse-custom">
                 <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-3xl font-bold text-green-600 mb-3">Login Berhasil!</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold text-green-600 mb-3">Login Berhasil!</h3>
             </div>
-            <p className="text-gray-700 text-lg mb-6">
+            <p className="text-gray-700 text-base sm:text-lg mb-6 px-4">
               Selamat datang kembali, <span className="font-bold text-blue-600">{userName}</span>
             </p>
-            <div className="flex items-center justify-center gap-2 text-gray-500">
+            <div className="flex items-center justify-center gap-2 text-gray-500 pb-6">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>

@@ -11,6 +11,7 @@ export default function AdminPage() {
   const [notifMessage, setNotifMessage] = useState("");
   const [sendingNotif, setSendingNotif] = useState(false);
   const [adminName, setAdminName] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   async function getApplicants() {
     try {
@@ -131,41 +132,104 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Navbar */}
-      <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40 p-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              MC
-            </div>
-            <h3 className="font-bold text-blue-900 text-lg">Admin Dashboard</h3>
-          </div>
-          <div className="flex items-center gap-4">
-            <AdminNotificationsWidget />
-            {adminName && (
-              <div className="flex items-center gap-3 border-l border-gray-300 pl-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center text-white font-bold">
-                    {adminName.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Admin</p>
-                    <p className="font-bold text-blue-900 text-sm">{adminName}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition text-sm"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
+  <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
+    <style>{`
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+    `}</style>
 
+    {/* Navbar */}
+    <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md shadow-sm">
+      <div className="flex justify-between items-center p-6">
+
+        {/* Logo + Title */}
+          <div className="flex items-center gap-2">
+        <img src="/icon.svg" alt="Logo" className="w-10 h-10 object-contain" />
+        <h3 className="font-bold text-blue-900 text-lg">
+          Magang Portal Radar Cirebon
+        </h3>
+      </div>
+
+        {/* Desktop Right Menu */}
+        <div className="hidden md:flex items-center gap-4">
+
+          {adminName ? (
+            <div className="flex items-center gap-4">
+              {/* Admin Avatar + Name */}
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center text-white font-bold">
+                  {adminName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Admin</p>
+                  <p className="font-bold text-blue-900">{adminName}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+              >
+                Logout
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Hamburger */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+          onClick={() => setOpen(!open)}
+        >
+          <svg
+            className="w-7 h-7 text-blue-900"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Dropdown */}
+      {open && (
+        <div className="md:hidden px-6 pb-4 flex flex-col gap-4 animate-fade-in">
+
+          
+
+          {adminName ? (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center text-white font-bold">
+                  {adminName.charAt(0).toUpperCase()}
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-600">Admin</p>
+                  <p className="font-bold text-blue-900">{adminName}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : null}
+        </div>
+      )}
+    </nav>
+
+      <div className="w-full px-6 mt-2 flex justify-end">
+        <AdminNotificationsWidget />
+      </div>
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
