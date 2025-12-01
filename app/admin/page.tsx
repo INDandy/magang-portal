@@ -246,12 +246,12 @@ export default function AdminPage() {
           <h1 className="text-4xl font-bold text-blue-900">Admin Dashboard</h1>
           <button
             onClick={handleClick}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 group"
+            className="px-6 py-3 pl-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 group"
           >
            <img src="/icons/refresh.png" 
                 alt="Refresh" 
-                className={`w-5 h-5 ${loading ? "spin-fast" : ""}`} />
-           Refresh
+                className={`w-5 h-5 block mr-3 ${loading ? "spin-fast" : ""}`} />
+           <span className="-ml-3">Refresh</span>
           </button>
         </div>
 
