@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import fs from "fs";
-import path from "path";
+import { put } from "@vercel/blob";
 
 export async function GET() {
   try {
@@ -43,13 +42,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Simpan file (contoh sederhana ke folder public/uploads)
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-    const filePath = path.join(uploadsDir, `${Date.now()}-${file.name}`);
+    // Upload file to Vercel Blob Storage
     const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(filePath, buffer);
+    const blobName = `${Date.now()}-${file.name}`;
+    
+    let fileUrl = "";
+    try {
+      const blob = await put(blobName, buffer, {
+        access: "public",
+        contentType: file.type,
+      });
+      fileUrl = blob.url;
+    } catch (blobError) {
+      console.error("Blob storage error:", blobError);
+      // Fallback: store as base64 in database if blob fails
+      const fileBase64 = buffer.toString("base64");
+      fileUrl = `data:${file.type};base64,${fileBase64}`;
+    }
 
     // Simpan Applicant di database and link to user if provided
     const userIdRaw = formData.get("userId") as string | null;
@@ -57,7 +66,7 @@ export async function POST(req: Request) {
       name,
       email,
       phone,
-      fileUrl: `/uploads/${path.basename(filePath)}`,
+      fileUrl: fileUrl,
       status: "PENDING",
     };
 

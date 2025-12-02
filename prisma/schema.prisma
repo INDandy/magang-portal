@@ -28,7 +28,7 @@ enum Role {
 
 model Applicant {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  userId    Int?
   name      String
   email     String
   phone     String
@@ -37,7 +37,7 @@ model Applicant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user          User           @relation(fields: [userId], references: [id])
+  user          User?          @relation(fields: [userId], references: [id])
   notifications Notification[]
 }
 
