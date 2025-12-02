@@ -32,8 +32,8 @@ model Applicant {
   name      String
   email     String
   phone     String
-  fileName  String
-  fileData  Bytes
+  fileName  String?
+  fileData  Bytes?
   fileUrl   String?
   status    Status   @default(PENDING)
   createdAt DateTime @default(now())
