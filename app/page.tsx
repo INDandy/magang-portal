@@ -5,7 +5,7 @@ import NotificationsWidget from "./components/NotificationsWidget";
 
 export default function HomePage() {
   const [showLogin, setShowLogin] = useState(false);
-  const [mode, setMode] = useState<"login" | "register-user" | "register-admin">("login");
+  const [mode, setMode] = useState<"login" | "register-user" | "register-admin">("register-user"); // Default to USER registration
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [popup, setPopup] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -462,20 +462,20 @@ export default function HomePage() {
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-50 to-transparent p-6 sm:p-8 border-b border-gray-100">
               <h2 className="text-2xl sm:text-3xl font-bold text-blue-900 text-center">
-                {mode === "login" ? "🔐 Login" : mode === "register-user" ? "👤 Daftar sebagai Peserta" : "🔑 Daftar sebagai Admin"}
+                {mode === "login" ? "🔐 Login" : "👤 Daftar sebagai Peserta"}
               </h2>
               <p className="text-sm text-gray-600 text-center mt-2">
-                {mode === "login" ? "Masuk ke akun Anda" : "Buat akun baru untuk melanjutkan"}
+                {mode === "login" ? "Masuk ke akun Anda" : "Buat akun baru sebagai peserta magang untuk melanjutkan"}
               </p>
             </div>
 
-            {/* Content */}
+             {/* Content */}
             <div className="p-6 sm:p-8">
-              {/* Account Type Selection (admin registration hidden) */}
+              {/* Pilih Tipe Akun section - HIDDEN USING COMMENT
               {mode !== "login" && (
                 <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 transition transform hover:scale-105 duration-200">
                   <p className="text-xs sm:text-sm text-gray-700 font-semibold mb-3">Pilih Tipe Akun:</p>
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => setMode("register-user")}
@@ -487,11 +487,21 @@ export default function HomePage() {
                     >
                       👤 Peserta
                     </button>
-                    {/* Admin registration intentionally hidden from UI. To create admin users, use server-side tools or the database. */}
+                    <button
+                      type="button"
+                      onClick={() => setMode("register-admin")}
+                      className={`py-3 px-3 sm:px-4 rounded-lg font-semibold transition duration-200 transform hover:scale-105 ${
+                        mode === "register-admin"
+                          ? "bg-red-600 text-white shadow-lg scale-105"
+                          : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:shadow-md"
+                      }`}
+                    >
+                      🔑 Admin
+                    </button>
                   </div>
                 </div>
               )}
-
+              END OF HIDDEN SECTION */}
               {/* Form Inputs */}
               <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                 {(mode === "register-user" || mode === "register-admin") && (
