@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { put } from "@vercel/blob";
 
 export async function GET() {
   try {
@@ -42,23 +41,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Upload file to Vercel Blob Storage
+    // Store file data in database
     const buffer = Buffer.from(await file.arrayBuffer());
-    const blobName = `${Date.now()}-${file.name}`;
-    
-    let fileUrl = "";
-    try {
-      const blob = await put(blobName, buffer, {
-        access: "public",
-        contentType: file.type,
-      });
-      fileUrl = blob.url;
-    } catch (blobError) {
-      console.error("Blob storage error:", blobError);
-      // Fallback: store as base64 in database if blob fails
-      const fileBase64 = buffer.toString("base64");
-      fileUrl = `data:${file.type};base64,${fileBase64}`;
-    }
 
     // Simpan Applicant di database and link to user if provided
     const userIdRaw = formData.get("userId") as string | null;
@@ -66,14 +50,15 @@ export async function POST(req: Request) {
       name,
       email,
       phone,
-      fileUrl: fileUrl,
+      fileName: file.name,
+      fileData: buffer,
       status: "PENDING",
     };
 
     if (userIdRaw) {
       const uid = parseInt(userIdRaw, 10);
       if (!isNaN(uid)) {
-        data.user = { connect: { id: uid } };
+        data.userId = uid;
       }
     }
 
