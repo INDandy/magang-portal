@@ -422,7 +422,7 @@ export default function AdminPage() {
                   <div className="mt-3 bg-white rounded-lg overflow-hidden border border-gray-300">
                     <iframe
                       key={selectedApplicant.id}
-                      src={`/api/apply/${selectedApplicant.id}#toolbar=0`}
+                      src={selectedApplicant.fileUrl ? selectedApplicant.fileUrl : `/api/apply/${selectedApplicant.id}`}
                       className="w-full h-96 border-none"
                       title="PDF Viewer"
                       onError={() => {
@@ -432,7 +432,7 @@ export default function AdminPage() {
                   </div>
                   
                   <a
-                    href={`/api/apply/${selectedApplicant.id}`}
+                    href={selectedApplicant.fileUrl ? selectedApplicant.fileUrl : `/api/apply/${selectedApplicant.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm"
