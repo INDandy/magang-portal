@@ -471,11 +471,11 @@ export default function HomePage() {
 
             {/* Content */}
             <div className="p-6 sm:p-8">
-              {/* Account Type Selection */}
+              {/* Account Type Selection (admin registration hidden) */}
               {mode !== "login" && (
                 <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 transition transform hover:scale-105 duration-200">
                   <p className="text-xs sm:text-sm text-gray-700 font-semibold mb-3">Pilih Tipe Akun:</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     <button
                       type="button"
                       onClick={() => setMode("register-user")}
@@ -487,17 +487,7 @@ export default function HomePage() {
                     >
                       👤 Peserta
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setMode("register-admin")}
-                      className={`py-3 px-3 sm:px-4 rounded-lg font-semibold transition duration-200 transform hover:scale-105 ${
-                        mode === "register-admin"
-                          ? "bg-red-600 text-white shadow-lg scale-105"
-                          : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:shadow-md"
-                      }`}
-                    >
-                      🔑 Admin
-                    </button>
+                    {/* Admin registration intentionally hidden from UI. To create admin users, use server-side tools or the database. */}
                   </div>
                 </div>
               )}
