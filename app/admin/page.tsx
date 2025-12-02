@@ -408,9 +408,9 @@ export default function AdminPage() {
               <div>
                 <p className="text-gray-600 text-sm font-semibold mb-3">File CV/Resume</p>
                 <div className="bg-gray-100 rounded-lg p-4 flex gap-4">
-                  <div className="text-3xl">📄</div>
-                  <div className="flex-1 flex flex-col">
-                    <p className="font-semibold text-gray-800">
+                  <div className="text-3xl flex-shrink-0">📄</div>
+                  <div className="flex-1 flex flex-col min-w-0">
+                    <p className="font-semibold text-gray-800 truncate" title={selectedApplicant.fileUrl.split("/").pop()}>
                       {selectedApplicant.fileUrl.split("/").pop()}
                     </p>
                     <p className="text-sm text-gray-600 mb-3">PDF Document</p>
