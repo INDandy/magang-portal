@@ -377,7 +377,6 @@ export default function HomePage() {
           ) : isLoggedIn && userRole === "ADMIN" ? (
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-2xl p-12 text-center animate-slide-up">
               <div className="mb-6">
-                <div className="text-6xl mb-4">👨‍💼</div>
                 <h3 className="text-2xl font-bold text-blue-900 mb-3">Anda Login Sebagai Admin</h3>
                 <p className="text-gray-700 mb-6">
                   Sebagai admin, Anda dapat mengelola aplikasi di halaman admin dashboard. Silakan akses dashboard untuk meninjau dan mengelola aplikasi peserta magang.
