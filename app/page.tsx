@@ -5,7 +5,7 @@ import NotificationsWidget from "./components/NotificationsWidget";
 
 export default function HomePage() {
   const [showLogin, setShowLogin] = useState(false);
-  const [mode, setMode] = useState<"login" | "register-user" | "register-admin">("register-user"); // Default to USER registration
+  const [mode, setMode] = useState<"login" | "register-user" | "register-admin">("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [popup, setPopup] = useState<string | null>(null);
   const [open, setOpen] = useState(false);

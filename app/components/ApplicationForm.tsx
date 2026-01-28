@@ -5,16 +5,48 @@ interface ApplicationFormProps {
   onApplySuccess?: (applicantId: number) => void;
 }
 
+const RADAR_CIREBON_POSITIONS = [
+  "Penyiaran (Broadcasting)",
+  "Fotografi",
+  "Videografi",
+  "Desain Grafis",
+  "Editing Video",
+];
+
+const SEMESTER_OPTIONS = [
+  "Semester 1",
+  "Semester 2",
+  "Semester 3",
+  "Semester 4",
+  "Semester 5",
+  "Semester 6",
+  "Semester 7",
+  "Semester 8",
+];
+
+const EDUCATION_LEVELS = [
+  "Mahasiswa",
+  "SMK",
+];
+
 export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps) {
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
+    educationLevel: "",
+    universityName: "",
+    schoolName: "",
+    prodi: "",
+    jurusan: "",
+    semester: "",
+    radarCireubonPosition: "",
     file: null as File | null,
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [phoneWarning, setPhoneWarning] = useState("");
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -34,6 +66,35 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
     }
   }
 
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let value = e.target.value;
+    
+    // Only allow digits and + symbol
+    const filteredValue = value.replace(/[^0-9+]/g, "");
+    
+    // Check for invalid characters
+    if (value !== filteredValue) {
+      setPhoneWarning("⚠ Hanya angka dan simbol + yang dibolehkan");
+    } else {
+      setPhoneWarning("");
+    }
+    
+    const phoneDigits = filteredValue.replace(/\D/g, "");
+    
+    // Update warning berdasarkan panjang
+    if (phoneDigits.length > 0 && phoneDigits.length < 10) {
+      setPhoneWarning(`⚠ Minimal 10 angka (${phoneDigits.length} angka)`);
+    } else if (phoneDigits.length > 15) {
+      setPhoneWarning(`⚠ Maksimal 15 angka (${phoneDigits.length} angka)`);
+    } else if (phoneDigits.length >= 10 && phoneDigits.length <= 15) {
+      setPhoneWarning("✓ Format nomor telpon valid");
+    } else {
+      setPhoneWarning("");
+    }
+    
+    setForm({ ...form, phone: filteredValue });
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -47,6 +108,35 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
       return;
     }
 
+    // Validate phone number length
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      setError("Nomor telepon harus antara 10-15 angka");
+      return;
+    }
+
+    if (!form.educationLevel) {
+      setError("Silakan pilih tingkat pendidikan");
+      return;
+    }
+
+    if (form.educationLevel === "Mahasiswa") {
+      if (!form.universityName || !form.prodi || !form.semester) {
+        setError("Silakan lengkapi nama universitas, prodi, dan semester");
+        return;
+      }
+    } else if (form.educationLevel === "SMK") {
+      if (!form.schoolName || !form.jurusan) {
+        setError("Silakan lengkapi nama sekolah dan jurusan");
+        return;
+      }
+    }
+
+    if (!form.radarCireubonPosition) {
+      setError("Silakan pilih posisi di Radar Cirebon");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -55,7 +145,14 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
       formData.append("name", form.name);
       formData.append("email", form.email);
       formData.append("phone", form.phone);
-        formData.append("file", form.file);
+      formData.append("educationLevel", form.educationLevel);
+      formData.append("universityName", form.universityName);
+      formData.append("schoolName", form.schoolName);
+      formData.append("prodi", form.prodi);
+      formData.append("jurusan", form.jurusan);
+      formData.append("semester", form.semester);
+      formData.append("radarCireubonPosition", form.radarCireubonPosition);
+      formData.append("file", form.file);
 
         // attach logged-in user id if available so server can link applicant to user
         try {
@@ -82,7 +179,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
           onApplySuccess?.(data.applicant.id);
         }
         setSuccess(true);
-        setForm({ name: "", email: "", phone: "", file: null });
+        setForm({ name: "", email: "", phone: "", educationLevel: "", universityName: "", schoolName: "", prodi: "", jurusan: "", semester: "", radarCireubonPosition: "", file: null });
         setTimeout(() => setSuccess(false), 5000);
       } else {
         setError(data.message || "Gagal mengirim aplikasi");
@@ -142,17 +239,136 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
           <label className="block text-gray-700 font-semibold mb-2">Nomor Telepon</label>
           <input
             type="tel"
-            placeholder="Masukkan nomor telepon Anda"
+            placeholder="Contoh: +628123456789 atau 081234567890"
+            maxLength={20}
             className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
             value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            onChange={handlePhoneChange}
             required
           />
+          <p className={`text-xs mt-2 font-semibold ${
+            phoneWarning.includes("✓") ? "text-green-600" : 
+            phoneWarning.includes("⚠") ? "text-orange-600" : 
+            "text-gray-500"
+          }`}>
+            {phoneWarning || `${form.phone.replace(/\D/g, "").length}/10-15 angka`}
+          </p>
+        </div>
+
+        {/* Education Level Field */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Tingkat Pendidikan</label>
+          <select
+            className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+            value={form.educationLevel}
+            onChange={(e) => setForm({ ...form, educationLevel: e.target.value })}
+            required
+          >
+            <option value="">-- Pilih Tingkat Pendidikan --</option>
+            {EDUCATION_LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Conditional Fields for Mahasiswa */}
+        {form.educationLevel === "Mahasiswa" && (
+          <>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Nama Universitas</label>
+              <input
+                type="text"
+                placeholder="Contoh: Universitas Indonesia, ITB"
+                className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+                value={form.universityName}
+                onChange={(e) => setForm({ ...form, universityName: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Prodi</label>
+              <input
+                type="text"
+                placeholder="Contoh: Informatika, Sistem Informasi"
+                className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+                value={form.prodi}
+                onChange={(e) => setForm({ ...form, prodi: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Semester</label>
+              <select
+                className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+                value={form.semester}
+                onChange={(e) => setForm({ ...form, semester: e.target.value })}
+                required
+              >
+                <option value="">-- Pilih Semester --</option>
+                {SEMESTER_OPTIONS.map((sem) => (
+                  <option key={sem} value={sem}>
+                    {sem}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
+
+        {/* Conditional Fields for SMK */}
+        {form.educationLevel === "SMK" && (
+          <>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Nama Sekolah</label>
+              <input
+                type="text"
+                placeholder="Contoh: SMK Negeri 1 Cirebon"
+                className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+                value={form.schoolName}
+                onChange={(e) => setForm({ ...form, schoolName: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Jurusan</label>
+              <input
+                type="text"
+                placeholder="Contoh: Multimedia, Teknik Komputer Jaringan"
+                className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+                value={form.jurusan}
+                onChange={(e) => setForm({ ...form, jurusan: e.target.value })}
+                required
+              />
+            </div>
+          </>
+        )}
+
+        {/* Radar Cirebon Position Field */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Posisi yang Diambil di Radar Cirebon</label>
+          <select
+            className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+            value={form.radarCireubonPosition}
+            onChange={(e) => setForm({ ...form, radarCireubonPosition: e.target.value })}
+            required
+          >
+            <option value="">-- Pilih Posisi --</option>
+            {RADAR_CIREBON_POSITIONS.map((position) => (
+              <option key={position} value={position}>
+                {position}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* File Upload Field */}
         <div>
-          <label className="block text-gray-700 font-semibold mb-2">Upload CV/Resume (PDF)</label>
+          <label className="block text-gray-700 font-semibold mb-2">Upload CV / Surat Lamaran (PDF)</label>
           <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition cursor-pointer">
             <input
               type="file"

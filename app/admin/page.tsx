@@ -364,44 +364,100 @@ export default function AdminPage() {
 
             {/* Modal Body */}
             <div className="p-8 space-y-6">
-              {/* Applicant Info */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold mb-1">Nama Lengkap</p>
-                  <p className="text-lg font-bold text-blue-900">{selectedApplicant.name}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold mb-1">Email</p>
-                  <p className="text-lg font-bold text-blue-900">{selectedApplicant.email}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold mb-1">Nomor Telepon</p>
-                  <p className="text-lg font-bold text-blue-900">{selectedApplicant.phone}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm font-semibold mb-1">Status Saat Ini</p>
-                  <span
-                    className={`inline-block px-4 py-1 rounded-full text-sm font-bold border ${getStatusColor(
-                      selectedApplicant.status
-                    )}`}
-                  >
-                    {selectedApplicant.status}
-                  </span>
+              {/* 👤 Informasi Pribadi */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+                <h3 className="text-lg font-bold text-blue-900 mb-4">👤 Informasi Pribadi</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Nama Lengkap</p>
+                    <p className="text-lg font-bold text-blue-900">{selectedApplicant.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Email</p>
+                    <p className="text-lg font-bold text-blue-900">{selectedApplicant.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Nomor Telepon</p>
+                    <p className="text-lg font-bold text-blue-900">{selectedApplicant.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Status Saat Ini</p>
+                    <span
+                      className={`inline-block px-4 py-1 rounded-full text-sm font-bold border ${getStatusColor(
+                        selectedApplicant.status
+                      )}`}
+                    >
+                      {selectedApplicant.status}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Tanggal Submit */}
-              <div>
-                <p className="text-gray-600 text-sm font-semibold mb-1">Tanggal Mendaftar</p>
-                <p className="text-gray-700">
-                  {new Date(selectedApplicant.createdAt).toLocaleDateString("id-ID", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+              {/* 🎓 Data Pendidikan */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
+                <h3 className="text-lg font-bold text-purple-900 mb-4">🎓 Data Pendidikan</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {selectedApplicant.educationLevel === "Mahasiswa" ? (
+                    <>
+                      <div>
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Tingkat Pendidikan</p>
+                        <p className="text-lg font-bold text-purple-900">Mahasiswa</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Nama Universitas</p>
+                        <p className="text-lg font-bold text-purple-900">{selectedApplicant.universityName || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Program Studi</p>
+                        <p className="text-lg font-bold text-purple-900">{selectedApplicant.prodi || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Semester</p>
+                        <p className="text-lg font-bold text-purple-900">{selectedApplicant.semester || "-"}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Tingkat Pendidikan</p>
+                        <p className="text-lg font-bold text-purple-900">SMK</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Nama Sekolah</p>
+                        <p className="text-lg font-bold text-purple-900">{selectedApplicant.schoolName || "-"}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Jurusan</p>
+                        <p className="text-lg font-bold text-purple-900">{selectedApplicant.jurusan || "-"}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* 💼 Data Pendaftaran */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
+                <h3 className="text-lg font-bold text-green-900 mb-4">💼 Data Pendaftaran</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Posisi yang Dilamar</p>
+                    <p className="text-lg font-bold text-green-900 bg-green-100 px-3 py-2 rounded-lg inline-block">
+                      {selectedApplicant.radarCireubonPosition || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Tanggal Mendaftar</p>
+                    <p className="text-gray-700">
+                      {new Date(selectedApplicant.createdAt).toLocaleDateString("id-ID", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Document Preview */}

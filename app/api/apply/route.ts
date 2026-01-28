@@ -22,12 +22,67 @@ export async function POST(req: Request) {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const phone = formData.get("phone") as string;
+    const educationLevel = formData.get("educationLevel") as string;
+    const universityName = formData.get("universityName") as string;
+    const schoolName = formData.get("schoolName") as string;
+    const prodi = formData.get("prodi") as string;
+    const jurusan = formData.get("jurusan") as string;
+    const semester = formData.get("semester") as string;
+    const radarCireubonPosition = formData.get("radarCireubonPosition") as string;
     const file = formData.get("file") as File;
 
     // Validate inputs
     if (!name || !email || !phone || !file) {
       return new Response(
         JSON.stringify({ success: false, message: "Semua field harus diisi" }),
+        { status: 400 }
+      );
+    }
+
+    if (!educationLevel) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Silakan pilih tingkat pendidikan" }),
+        { status: 400 }
+      );
+    }
+
+    // Validate based on education level
+    if (educationLevel === "Mahasiswa") {
+      if (!universityName || !prodi || !semester) {
+        return new Response(
+          JSON.stringify({ success: false, message: "Silakan lengkapi nama universitas, prodi, dan semester" }),
+          { status: 400 }
+        );
+      }
+    } else if (educationLevel === "SMK") {
+      if (!schoolName || !jurusan) {
+        return new Response(
+          JSON.stringify({ success: false, message: "Silakan lengkapi nama sekolah dan jurusan" }),
+          { status: 400 }
+        );
+      }
+    }
+
+    if (!radarCireubonPosition) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Silakan pilih posisi di Radar Cirebon" }),
+        { status: 400 }
+      );
+    }
+
+    // Validate phone number length (10-15 digits)
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Nomor telepon harus antara 10-15 angka" }),
+        { status: 400 }
+      );
+    }
+
+    // Validate phone format (only digits and + symbol allowed)
+    if (!/^[0-9+]+$/.test(phone)) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Nomor telepon hanya boleh berisi angka dan simbol +" }),
         { status: 400 }
       );
     }
@@ -50,6 +105,13 @@ export async function POST(req: Request) {
       name,
       email,
       phone,
+      educationLevel,
+      universityName,
+      schoolName,
+      semester,
+      prodi,
+      jurusan,
+      radarCireubonPosition,
       fileName: file.name,
       fileData: buffer,
       status: "PENDING",
