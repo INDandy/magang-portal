@@ -38,6 +38,7 @@ model Applicant {
   prodi                  String?        @db.VarChar(50)
   jurusan                String?        @db.VarChar(50)
   semester               String?        @db.VarChar(20)
+  kelas                  String?        @db.VarChar(20)
   radarCireubonPosition  String?        @db.VarChar(50)
   user                   User?          @relation(fields: [userId], references: [id])
   notifications          Notification[]
@@ -46,6 +47,7 @@ model Applicant {
 model Notification {
   id          Int       @id @default(autoincrement())
   message     String    @db.VarChar(100)
+  sender      String    @default("Admin")
   applicantId Int
   createdAt   DateTime  @default(now())
   applicant   Applicant @relation(fields: [applicantId], references: [id])

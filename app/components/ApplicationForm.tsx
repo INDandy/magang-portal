@@ -24,6 +24,12 @@ const SEMESTER_OPTIONS = [
   "Semester 8",
 ];
 
+const KELAS_OPTIONS = [
+  "Kelas X",
+  "Kelas XI",
+  "Kelas XII",
+];
+
 const EDUCATION_LEVELS = [
   "Mahasiswa",
   "SMK",
@@ -37,6 +43,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
     educationLevel: "",
     universityName: "",
     schoolName: "",
+    kelas: "",
     prodi: "",
     jurusan: "",
     semester: "",
@@ -126,7 +133,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
         return;
       }
     } else if (form.educationLevel === "SMK") {
-      if (!form.schoolName || !form.jurusan) {
+      if (!form.schoolName || !form.jurusan || !form.kelas) {
         setError("Silakan lengkapi nama sekolah dan jurusan");
         return;
       }
@@ -146,6 +153,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
       formData.append("email", form.email);
       formData.append("phone", form.phone);
       formData.append("educationLevel", form.educationLevel);
+      formData.append("kelas", form.kelas);
       formData.append("universityName", form.universityName);
       formData.append("schoolName", form.schoolName);
       formData.append("prodi", form.prodi);
@@ -179,7 +187,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
           onApplySuccess?.(data.applicant.id);
         }
         setSuccess(true);
-        setForm({ name: "", email: "", phone: "", educationLevel: "", universityName: "", schoolName: "", prodi: "", jurusan: "", semester: "", radarCireubonPosition: "", file: null });
+        setForm({ name: "", email: "", phone: "", educationLevel: "", kelas: "" , universityName: "", schoolName: "", prodi: "", jurusan: "", semester: "", radarCireubonPosition: "", file: null });
         setTimeout(() => setSuccess(false), 5000);
       } else {
         setError(data.message || "Gagal mengirim aplikasi");
@@ -299,7 +307,6 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
                 required
               />
             </div>
-
             <div>
               <label className="block text-gray-700 font-semibold mb-2">Semester</label>
               <select
@@ -344,6 +351,23 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
                 onChange={(e) => setForm({ ...form, jurusan: e.target.value })}
                 required
               />
+            </div>
+
+             <div>
+              <label className="block text-gray-700 font-semibold mb-2">Kelas</label>
+              <select
+                className="w-full border-2 border-gray-200 p-4 rounded-lg text-black focus:outline-none focus:border-blue-500 transition"
+                value={form.kelas}
+                onChange={(e) => setForm({ ...form, kelas: e.target.value })}
+                required
+              >
+                <option value="">-- Pilih Kelas --</option>
+                {KELAS_OPTIONS.map((kel) => (
+                  <option key={kel} value={kel}>
+                    {kel}
+                  </option>
+                ))}
+              </select>
             </div>
           </>
         )}

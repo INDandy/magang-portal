@@ -12,6 +12,9 @@ export default function AdminPage() {
   const [sendingNotif, setSendingNotif] = useState(false);
   const [adminName, setAdminName] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [notifStatus, setNotifStatus] = useState<null | "success" | "error">(null);
+  const [notifText, setNotifText] = useState("");
+
 
   async function getApplicants() {
     try {
@@ -47,33 +50,44 @@ export default function AdminPage() {
   }
 
   async function sendNotification() {
-    if (!selectedApplicant) return;
-    if (!notifMessage.trim()) {
-      alert("Isi pesan notifikasi terlebih dahulu");
-      return;
-    }
-
-    try {
-      setSendingNotif(true);
-      const res = await fetch("/api/notifications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ applicantId: selectedApplicant.id, message: notifMessage }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("Notifikasi terkirim ke peserta");
-        setNotifMessage("");
-      } else {
-        alert("Gagal mengirim notifikasi: " + (data.message || ""));
-      }
-    } catch (err) {
-      console.error("Error sending notification:", err);
-      alert("Terjadi kesalahan saat mengirim notifikasi");
-    } finally {
-      setSendingNotif(false);
-    }
+  if (!selectedApplicant) return;
+  if (!notifMessage.trim()) {
+    setNotifStatus("error");
+    setNotifText("Isi pesan notifikasi terlebih dahulu");
+    return;
   }
+
+  try {
+    setSendingNotif(true);
+    const res = await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        applicantId: selectedApplicant.id,
+        message: notifMessage,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      setNotifStatus("success");
+      setNotifText("Notifikasi berhasil dikirim ke peserta ✉️");
+      setNotifMessage("");
+    } else {
+      setNotifStatus("error");
+      setNotifText(data.message || "Gagal mengirim notifikasi");
+    }
+  } catch (err) {
+    console.error(err);
+    setNotifStatus("error");
+    setNotifText("Terjadi kesalahan saat mengirim notifikasi");
+  } finally {
+    setSendingNotif(false);
+    setTimeout(() => setNotifStatus(null), 4000);
+  }
+}
+
 
   function handleLogout() {
     localStorage.removeItem("user");
@@ -430,6 +444,10 @@ export default function AdminPage() {
                         <p className="text-gray-600 text-sm font-semibold mb-1">Jurusan</p>
                         <p className="text-lg font-bold text-purple-900">{selectedApplicant.jurusan || "-"}</p>
                       </div>
+                      <div className="md:col-span-2">
+                        <p className="text-gray-600 text-sm font-semibold mb-1">Kelas</p>
+                        <p className="text-lg font-bold text-purple-900">{selectedApplicant.kelas || "-"}</p>
+                      </div>
                     </>
                   )}
                 </div>
@@ -536,6 +554,18 @@ export default function AdminPage() {
               {/* Admin send-notification box */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <p className="text-sm text-gray-600 font-semibold mb-3">Kirim Notifikasi ke Peserta</p>
+                {notifStatus && (
+                  <div
+                    className={`mb-3 p-3 rounded-lg text-sm font-semibold border animate-fade-in ${
+                      notifStatus === "success"
+                        ? "bg-green-100 text-green-700 border-green-300"
+                        : "bg-red-100 text-red-700 border-red-300"
+                    }`}
+                  >
+                    {notifText}
+                  </div>
+                )}
+
                 <textarea
                   value={notifMessage}
                   onChange={(e) => setNotifMessage(e.target.value)}

@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
-    "@vercel/blob": "^0.25.1",
+    "@vercel/blob": "^2.0.1",
     "autoprefixer": "^10.4.22",
     "bcryptjs": "^3.0.3",
-    "next": "16.0.10",
+    "next": "^16.1.6",
+    "nodemailer": "^7.0.13",
     "postcss": "^8.5.6",
     "react": "19.2.0",
     "react-dom": "19.2.0"
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.2.3",

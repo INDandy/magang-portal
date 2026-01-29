@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     const prodi = formData.get("prodi") as string;
     const jurusan = formData.get("jurusan") as string;
     const semester = formData.get("semester") as string;
+    const kelas = formData.get("kelas") as string;
     const radarCireubonPosition = formData.get("radarCireubonPosition") as string;
     const file = formData.get("file") as File;
 
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
         );
       }
     } else if (educationLevel === "SMK") {
-      if (!schoolName || !jurusan) {
+      if (!schoolName || !jurusan || !kelas) {
         return new Response(
           JSON.stringify({ success: false, message: "Silakan lengkapi nama sekolah dan jurusan" }),
           { status: 400 }
@@ -109,6 +110,7 @@ export async function POST(req: Request) {
       universityName,
       schoolName,
       semester,
+      kelas,
       prodi,
       jurusan,
       radarCireubonPosition,
