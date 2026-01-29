@@ -21,7 +21,7 @@ export default function ApplyPage() {
           </Link>
           <div>
             <h1 className="text-4xl font-bold text-blue-900">Formulir Pendaftaran Magang</h1>
-            <p className="text-gray-700 text-lg">Lengkapi formulir di bawah untuk mendaftar sebagai peserta magang</p>
+            <p className="text-gray-700 text-lg">Lengkapi formulir dibawah untuk mendaftar sebagai peserta magang</p>
           </div>
         </div>
         
