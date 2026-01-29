@@ -297,7 +297,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
             </div>
 
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">Prodi</label>
+              <label className="block text-gray-700 font-semibold mb-2">Prodi & Jurusan</label>
               <input
                 type="text"
                 placeholder="Contoh: Informatika, Sistem Informasi"

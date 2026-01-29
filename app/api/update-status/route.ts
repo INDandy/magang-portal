@@ -1,55 +1,47 @@
 import { prisma } from "@/lib/prisma";
+import { sendMail } from "@/lib/mailer";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { id, status } = body;
+    const { id, status, message } = await req.json();
 
-    // Validate input
-    if (!id || !status) {
-      return new Response(
-        JSON.stringify({ success: false, message: "ID dan status harus diisi" }),
-        { status: 400 }
-      );
+    const applicant = await prisma.applicant.findUnique({
+      where: { id },
+    });
+
+    if (!applicant) {
+      return new Response(JSON.stringify({ success: false, message: "Applicant not found" }), { status: 404 });
     }
 
-    // Validate status value
-    const validStatuses = ["PENDING", "ACCEPTED", "REJECTED"];
-    if (!validStatuses.includes(status)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Status tidak valid" }),
-        { status: 400 }
-      );
-    }
-
-    // Update applicant status
-    const updatedApplicant = await prisma.applicant.update({
+    await prisma.applicant.update({
       where: { id },
       data: { status },
     });
 
-    // Create notification
+    // simpan notifikasi
     await prisma.notification.create({
       data: {
         applicantId: id,
-        message:
-          status === "ACCEPTED"
-            ? "Selamat! Lamaran kamu diterima. Tim kami akan menghubungi Anda segera."
-            : status === "REJECTED"
-            ? "Terima kasih atas permohonan Anda. Maaf, pada kesempatan kali ini kami tidak dapat menerima lamaran Anda. Kami berharap dapat bekerja sama di masa depan."
-            : "Status lamaran Anda telah diperbarui.",
+        message,
+        sender: "Admin",
       },
     });
 
-    return new Response(
-      JSON.stringify({ success: true, applicant: updatedApplicant }),
-      { status: 200 }
+    // kirim email
+    await sendMail(
+      applicant.email,
+      status === "ACCEPTED" ? "Selamat, Kamu Diterima 🎉" : "Hasil Seleksi Magang",
+      `
+        <h3>Halo ${applicant.name}</h3>
+        <p>${message}</p>
+        <hr/>
+        <small>Silakan login ke website untuk info lebih lanjut.</small>
+      `
     );
+
+    return new Response(JSON.stringify({ success: true }));
   } catch (error) {
-    console.error("Error updating status:", error);
-    return new Response(
-      JSON.stringify({ success: false, message: "Gagal memperbarui status" }),
-      { status: 500 }
-    );
+    console.error("Update status error:", error);
+    return new Response(JSON.stringify({ success: false, message: "Gagal update status" }), { status: 500 });
   }
 }

@@ -14,6 +14,9 @@ export default function AdminPage() {
   const [open, setOpen] = useState(false);
   const [notifStatus, setNotifStatus] = useState<null | "success" | "error">(null);
   const [notifText, setNotifText] = useState("");
+  const [statusAlert, setStatusAlert] = useState<null | "success" | "error">(null);
+  const [statusText, setStatusText] = useState("");
+
 
 
   async function getApplicants() {
@@ -29,25 +32,50 @@ export default function AdminPage() {
     }
   }
 
-  async function updateStatus(id: number, status: string) {
+    async function updateStatus(id: number, status: string, message: string) {
+    if (!message.trim()) {
+      setStatusAlert("error");
+      setStatusText("Isi pesan dulu sebelum mengubah status");
+      return;
+    }
+
     try {
       setUpdating(true);
+
       const res = await fetch("/api/update-status", {
         method: "POST",
-        body: JSON.stringify({ id, status }),
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status, message }),
       });
+
       const data = await res.json();
+
       if (data.success) {
+        setStatusAlert("success");
+        setStatusText(
+          status === "ACCEPTED"
+            ? "Peserta berhasil DITERIMA & email terkirim ✉️"
+            : "Peserta berhasil DITOLAK & email terkirim ✉️"
+        );
+
+        setNotifMessage("");
         getApplicants();
         setSelectedApplicant(null);
+      } else {
+        setStatusAlert("error");
+        setStatusText(data.message || "Gagal mengubah status");
       }
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error(error);
+      setStatusAlert("error");
+      setStatusText("Terjadi kesalahan server");
     } finally {
       setUpdating(false);
+      setTimeout(() => setStatusAlert(null), 4000);
     }
   }
+
+
 
   async function sendNotification() {
   if (!selectedApplicant) return;
@@ -516,20 +544,42 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+             {/* Action Buttons */}
               {selectedApplicant.status === "PENDING" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <p className="text-sm text-gray-600 font-semibold mb-4">Ambil Keputusan:</p>
+
+                  {/* Alert perubahan status */}
+                  {statusAlert && (
+                    <div
+                      className={`mb-4 p-3 rounded-lg text-sm font-semibold border animate-fade-in ${
+                        statusAlert === "success"
+                          ? "bg-green-100 text-green-700 border-green-300"
+                          : "bg-red-100 text-red-700 border-red-300"
+                      }`}
+                    >
+                      {statusText}
+                    </div>
+                  )}
+
+                  <p className="text-sm text-gray-600 font-semibold mb-4">
+                    Ambil Keputusan:
+                  </p>
+
                   <div className="flex gap-4">
                     <button
-                      onClick={() => updateStatus(selectedApplicant.id, "ACCEPTED")}
+                      onClick={() =>
+                        updateStatus(selectedApplicant.id, "ACCEPTED", notifMessage)
+                      }
                       disabled={updating}
                       className="flex-1 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:shadow-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {updating ? "Loading..." : "✓ Terima Aplikasi"}
                     </button>
+
                     <button
-                      onClick={() => updateStatus(selectedApplicant.id, "REJECTED")}
+                      onClick={() =>
+                        updateStatus(selectedApplicant.id, "REJECTED", notifMessage)
+                      }
                       disabled={updating}
                       className="flex-1 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:shadow-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
                     >
@@ -547,9 +597,11 @@ export default function AdminPage() {
                       : "bg-red-100 text-red-700 border border-red-300"
                   }`}
                 >
-                  Aplikasi ini sudah {selectedApplicant.status === "ACCEPTED" ? "diterima" : "ditolak"}
+                  Aplikasi ini sudah{" "}
+                  {selectedApplicant.status === "ACCEPTED" ? "diterima" : "ditolak"}
                 </div>
               )}
+
 
               {/* Admin send-notification box */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
