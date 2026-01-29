@@ -55,7 +55,12 @@ export async function POST(req: Request) {
         <h3>Notifikasi dari ${sender || "Admin"}</h3>
         <p>${message}</p>
         <hr/>
-        <small>Silakan login ke website untuk detail lebih lanjut.</small>
+        <p>
+        <a href="https://magangdiradarcirebon.vercel.app/"
+         style="color:#2563eb; text-decoration:none; font-weight:bold;">
+        Klik di sini untuk login ke website
+      </a>
+    </p>
       `
     );
 
