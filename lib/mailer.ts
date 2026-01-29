@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 
 export const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false, // true kalau 465
+  host: "smtp.gmail.com", // ganti kalau bukan Gmail
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -11,8 +11,12 @@ export const transporter = nodemailer.createTransport({
 });
 
 export async function sendMail(to: string, subject: string, html: string) {
-  return transporter.sendMail({
-    from: `"Magang Portal Radar Cirebon" <${process.env.SMTP_USER}>`,
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    throw new Error("SMTP env not set");
+  }
+
+  return await transporter.sendMail({
+    from: process.env.SMTP_USER,
     to,
     subject,
     html,
