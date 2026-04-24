@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         applicant.email,
         "Notifikasi Magang Radar Cirebon",
         `
-          <h3>Notifikasi dari ${sender || "Admin"}</h3>
+          <h3>Notifikasi dari ${sender || "Reviewer"}</h3>
           <p>${message}</p>
           <hr/>
           <p>

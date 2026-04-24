@@ -377,16 +377,16 @@ export default function HomePage() {
           ) : isLoggedIn && userRole === "ADMIN" ? (
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-2xl p-12 text-center animate-slide-up">
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-blue-900 mb-3">Anda Login Sebagai Admin</h3>
+                <h3 className="text-2xl font-bold text-blue-900 mb-3">Anda Login Sebagai Reviewer</h3>
                 <p className="text-gray-700 mb-6">
-                  Sebagai admin, Anda dapat mengelola aplikasi di halaman admin dashboard. Silakan akses dashboard untuk meninjau dan mengelola aplikasi peserta magang.
+                  Sebagai reviewer, Anda dapat mengelola aplikasi di halaman reviewer dashboard. Silakan akses dashboard untuk meninjau dan mengelola aplikasi peserta magang.
                 </p>
               </div>
               <button
                 onClick={() => window.location.href = "/admin"}
                 className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition transform inline-block"
               >
-                Ke Admin Dashboard →
+                Ke Reviewer Dashboard →
               </button>
             </div>
           ) : (
@@ -495,7 +495,7 @@ export default function HomePage() {
                           : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:shadow-md"
                       }`}
                     >
-                      🔑 Admin
+                      🔑 Reviewer
                     </button>
                   </div>
                 </div>

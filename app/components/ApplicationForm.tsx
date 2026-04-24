@@ -205,7 +205,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg animate-slide-down">
           <p className="font-semibold">✓ Aplikasi Anda berhasil dikirim!</p>
-          <p className="text-sm">Admin akan meninjau aplikasi Anda dalam waktu singkat.</p>
+          <p className="text-sm">Reviewer akan meninjau aplikasi Anda dalam waktu singkat.</p>
         </div>
       )}
 
@@ -446,7 +446,7 @@ export default function ApplicationForm({ onApplySuccess }: ApplicationFormProps
         <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
           <li>File harus berformat PDF dengan ukuran maksimal 5MB</li>
           <li>Pastikan semua data yang Anda isi sudah benar</li>
-          <li>Admin akan meninjau aplikasi Anda dalam waktu 3-7 hari kerja</li>
+          <li>Reviewer akan meninjau aplikasi Anda dalam waktu 3-7 hari kerja</li>
           <li>Anda akan menerima notifikasi melalui notifikasi yang ada di website ini</li>
         </ul>
       </div>

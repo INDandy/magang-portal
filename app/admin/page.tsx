@@ -134,7 +134,7 @@ export default function AdminPage() {
     try {
       const user = JSON.parse(storedUser);
       if (user.role !== "ADMIN") {
-        alert("Akses ditolak. Halaman ini hanya untuk admin.");
+        alert("Akses ditolak. Halaman ini hanya untuk reviewer.");
         window.location.href = "/";
         return;
       }
@@ -216,7 +216,7 @@ export default function AdminPage() {
                   {adminName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Admin</p>
+                  <p className="text-sm text-gray-600">Reviewer</p>
                   <p className="font-bold text-blue-900">{adminName}</p>
                 </div>
               </div>
@@ -262,7 +262,7 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600">Admin</p>
+                  <p className="text-sm text-gray-600">Reviewer</p>
                   <p className="font-bold text-blue-900">{adminName}</p>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function AdminPage() {
       <div className="p-8">
         <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-blue-900">Admin Dashboard</h1>
+          <h1 className="text-4xl font-bold text-blue-900">Reviewer Dashboard</h1>
           <button
             onClick={handleClick}
             className="px-6 py-3 pl-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 group"
